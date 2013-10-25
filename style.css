@@ -1,0 +1,31 @@
+ /**
+ * DokuWiki Plugin multiselect (CSS Component) 
+ *
+ * @license GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ * @author  lisps    
+ */
+span.multiselector {
+  cursor           :pointer;
+  position         :absolute;
+  background-color :white;
+  padding          :5px;
+  margin           :-7px;
+  border           :solid 1px black;
+  display          :inline;
+}
+
+span.multiclicker {
+  cursor           :pointer;
+  border           :solid 1px transparent;
+  display:block;
+}
+
+span.multiclicker:hover {
+  border           :solid 1px black;
+}
+
+span.multismiley{
+  cursor           :pointer;
+  text-decoration  :underline;
+  display          :inline;
+}

@@ -1,0 +1,7 @@
+base    multiselect
+author  lisps
+email   
+date    2013-10-25
+name    MultiSelect
+desc    Creates a Multiselectbutton for different Images/Text
+url     http://dokuwiki.org/plugin:multiselect
