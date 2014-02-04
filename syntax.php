@@ -16,8 +16,24 @@ require_once(DOKU_PLUGIN.'syntax.php');
  */
 class syntax_plugin_multiselect extends DokuWiki_Syntax_Plugin {
 
-	var $idcount = 0;
-
+    private $_itemPos = array();
+    function incItemPos() {
+        global $ID;
+        if(array_key_exists($ID,$this->_itemPos)) {
+            return $this->_itemPos[$ID]++;
+        } else {
+            $this->_itemPos[$ID] = 1;
+            return 0;
+        }
+    }
+    function getItemPos(){
+        global $ID;
+        if(array_key_exists($ID,$this->_itemPos)) {
+            $this->_itemPos[$ID];
+        } else {
+            return 0;
+        }
+    }
 	/*
 	* What kind of syntax are we?
 	*/
@@ -50,19 +66,23 @@ class syntax_plugin_multiselect extends DokuWiki_Syntax_Plugin {
 	* Handle the matches
 	*/
 	function handle($match, $state, $pos, &$handler) {
-	global $INFO;
+        global $ID;
 
 		//extract payload
 		$match=trim($match);
 		$match=trim(substr($match,13,strlen($match)-13-1));
 		//$opts["smileys"]=explode(" ",$match);
 		$ret = preg_match_all('/[\w\[\]\(\)\{\}\|\?\+\-\*\^\$\\\.:!\/;,+#~&%]+|"[\w\[\]\(\)\{\}\|\?\+\-\*\^\$\\\.:!\/;,+#~&%\s]+"/u',$match,$matches);
-		$opts["smileys"]=str_replace('"','',$matches[0]);
-		$opts["id"]=$this->idcount++;
-		$opts["page"]=$INFO["id"];
-		$opts["valid"]=count($opts["smileys"])>0;
-
-		return ($opts);
+		
+        $smileys=str_replace('"','',$matches[0]);
+		$itemPos=$this->incItemPos();
+		$page=$ID;
+        
+		return array(
+            $smileys,
+            $itemPos,
+            $page
+        );
 	}
 
 	function iswriter() {
@@ -76,44 +96,48 @@ class syntax_plugin_multiselect extends DokuWiki_Syntax_Plugin {
 	*/
 	function render($mode, &$renderer, $opt) {
 		global $INFO;
-
-		if($mode == 'metadata') return false;
-		if($mode == 'xhtml') {
-			$renderer->nocache();
-			$Hajax = plugin_load('helper', 'ajaxedit');
-			if(!$Hajax){
-				msg('Plugin ajaxedit is missing');
-			}
+        
+        list($smileys,
+            $itemPos,
+            $page) = $opt;
+        //dbg($opt);
+        //dbg(1);
+		if($mode == 'metadata') {
+            $renderer->smiley(reset($smileys));
+        } else if ($mode == 'xhtml') {
+			//$renderer->nocache();
+			$Hajax = $this->loadHelper('ajaxedit');
+            
+            if(!reset($smileys))  {
+                $renderer->doc .= 'empty';
+                return true;
+            }
 			//insert selector if writable
-			if ($this->iswriter()==TRUE && $Hajax && !is_a($renderer,'renderer_plugin_dw2pdf')) {
-				$renderer->cdata("\n");
-				$renderer->doc .= '<span id="multiselect'.$opt["id"].'" class="multiselector" style="display:none">';
+			if ($Hajax && $page == $INFO['id']) {
+                $htmlid = hsc($page).'_'.$itemPos;
+
+				$renderer->doc .= '<span id="multiselect_'.$htmlid.'" class="multiselector" style="display:none">'.DOKU_LF;
 
 				//insert all other smileys clickable
 				$count=0;        
-				foreach($opt["smileys"] as $smiley) {
-					$imgfile=DOKU_BASE.'lib/images/smileys/'.$renderer->smileys[$smiley];
-
-					$renderer->cdata("\n       ");
-					$renderer->doc .= '<span id="multiclick'.$opt["id"]."_".$count.'" class="multiclicker" onclick="multiclickclick(\''.base64_encode($INFO["id"]).'\','.$opt["id"].','.$count.')">';
+				foreach($smileys as $smiley) {
+					$renderer->doc .= DOKU_TAB.'<span id="multiclick_'.$htmlid."_".$count.'" class="multiclicker" onclick="multiclickclick(\''.hsc($page).'\',\''.$htmlid.'\','.$count.')">'.DOKU_LF.DOKU_TAB;
 					$renderer->smiley($smiley);
-					$renderer->doc .= '</span>';            
+					$renderer->doc .= DOKU_LF.DOKU_TAB.'</span>'.DOKU_LF;            
 					$count++;
 				}
-				$renderer->doc .= "</span>";
-			}
-
-			//show first smiley
-			$renderer->cdata("\n");
-			$renderer->doc .= '<span id="multismiley'.$opt["id"].'" title="multiselector'.$opt["id"].'" class="multismiley" onclick="multiselectclick('.$opt["id"].')">';
-			if(!reset($opt["smileys"]))
-			$renderer->doc .= 'empty';
-			else
-			$renderer->smiley(reset($opt["smileys"]));
-			$renderer->doc .= '</span>';
-		}
-		else if ($mode == 'odt'){
-			$renderer->smiley(reset($opt["smileys"]));
+				$renderer->doc .= '</span>'.DOKU_LF;
+                $renderer->doc .= '<span id="multismiley_'.$htmlid.'" title="multiselect:['.implode(', ',array_map('hsc',$smileys)).']" class="multismiley multismiley_'.hsc($page).'" onclick="multiselectclick(\''.$htmlid.'\')">'.DOKU_LF;
+                    $renderer->smiley(reset($smileys));
+                $renderer->doc .= DOKU_LF.'</span>';
+            } else {
+                $renderer->doc .= DOKU_LF.'<span title="multiselect:['.implode(', ',array_map('hsc',$smileys)).']" class="multismiley">'.DOKU_LF;
+                    $renderer->smiley(reset($smileys));
+                $renderer->doc .= DOKU_LF.'</span>';
+            }
+			
+		} else if ($mode == 'odt'){
+			$renderer->smiley(reset($smileys));
 		}
 		return true;
 	}

@@ -29,3 +29,7 @@ span.multismiley{
   text-decoration  :underline;
   display          :inline;
 }
+
+span.multismiley img{
+  min-width        :16px; /*fix problem with chrome browser*/
+}

@@ -11,22 +11,26 @@ function multiselectdone(data) {
 
     
 function multiselectclick(id) {
-	$myself = jQuery('#multiselect'+id);        
+    if(!(JSINFO && JSINFO['acl_write'] === '1')) return;
+    id = multiselect_escapeStr(id);
 
+	$myself = jQuery('#multiselect_'+id);        
 	if ($myself) {
 		$myself.toggle();
-		$myself.offset({top:jQuery('#multismiley'+id).offset().top-7,left:jQuery('#multismiley'+id).offset().left-7}); 
+		$myself.offset({top:jQuery('#multismiley_'+id).offset().top-7,left:jQuery('#multismiley_'+id).offset().left-7}); 
 		 
 	}
 }    
 
 function multiclickclick(pageid,id,count) {
 	//hide selector window
-	multiselectclick(id);
+    multiselectclick(id);
+
+    id = multiselect_escapeStr(id);
 
 	//change smiley
-	var mysmiley=document.getElementById('multismiley'+id);
-	var myselect=document.getElementById('multiclick'+id+"_"+count);
+	var mysmiley=jQuery('#multismiley_'+id)[0];
+	var myselect=jQuery('#multiclick_'+id+"_"+count)[0];
 	
 	if ( (mysmiley)&&(myselect) ) {
 		//send only changes
@@ -39,18 +43,19 @@ function multiclickclick(pageid,id,count) {
 			}
 			ajaxedit_send(
 				'multiselect',
-				ajaxedit_getIdxByIdClass('multismiley'+id,"multismiley"),//because multiselect can be moved it is necessary to idx it on the fly 
+				ajaxedit_getIdxByIdClass('multismiley_'+id,"multismiley_"+multiselect_escapeStr(pageid)),//because multiselect can be moved it is necessary to idx it on the fly 
 				multiselectdone,
 				{	
+                    pageid:pageid,
 					token:token,
-					count:ajaxedit_getIdxByIdClassNodeid('multiclick'+id+"_"+count,'multiclicker','multiselect'+id),
+					count:ajaxedit_getIdxByIdClassNodeid('multiclick_'+id+'_'+count,'multiclicker','multiselect_'+id),
 				}		
 			);
 
 		}
 		//change order so we are up to date
-		jQuery(jQuery('#multiselect'+id).children(':first')).insertBefore('#multiclick'+id+"_"+count);
-		jQuery('#multiselect'+id).prepend(jQuery('#multiclick'+id+"_"+count));
+		jQuery(jQuery('#multiselect_'+id).children(':first')).insertBefore('#multiclick_'+id+"_"+count);
+		jQuery('#multiselect_'+id).prepend(jQuery('#multiclick_'+id+"_"+count));
 	}
 	
 }
@@ -66,3 +71,12 @@ jQuery(document).ready(function(){
 		return false;
 	});
 });
+
+
+function multiselect_escapeStr(str) 
+{
+    if (str)
+        return str.replace(/([ #;?%&,.+*~\':"!^$[\]()=>|\/@])/g,'\\$1');      
+
+    return str;
+}
