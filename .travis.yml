@@ -1,0 +1,10 @@
+language: php
+php:
+  - "5.5"
+  - "5.4"
+  - "5.3"
+env:
+  - DOKUWIKI=TestRequest
+before_install: wget https://raw.github.com/lisps/dokuwiki-travis/master/travis.sh
+install: sh travis.sh
+script: cd _test && phpunit --stderr --group plugin_multiselect

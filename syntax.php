@@ -34,99 +34,98 @@ class syntax_plugin_multiselect extends DokuWiki_Syntax_Plugin {
             return 0;
         }
     }
-	/*
-	* What kind of syntax are we?
-	*/
-	function getType() {
-		return 'substition';
-	}
+    /*
+    * What kind of syntax are we?
+    */
+    function getType() {
+        return 'substition';
+    }
 
-	/*
-	* Where to sort in?
-	*/
-	function getSort() {
-		return 155;
-	}
+    /*
+    * Where to sort in?
+    */
+    function getSort() {
+        return 155;
+    }
 
-	/*
-	* Paragraph Type
-	*/
-	function getPType() {
-		return 'normal';
-	}
+    /*
+    * Paragraph Type
+    */
+    function getPType() {
+        return 'normal';
+    }
 
-	/*
-	* Connect pattern to lexer
-	*/
-	function connectTo($mode) {
-		$this->Lexer->addSpecialPattern("<multiselect[^>]*>",$mode,'plugin_multiselect');
-	}
+    /*
+    * Connect pattern to lexer
+    */
+    function connectTo($mode) {
+        $this->Lexer->addSpecialPattern("<multiselect[^>]*>",$mode,'plugin_multiselect');
+    }
 
-	/*
-	* Handle the matches
-	*/
-	function handle($match, $state, $pos, &$handler) {
+    /*
+    * Handle the matches
+    */
+    function handle($match, $state, $pos, &$handler) {
         global $ID;
 
-		//extract payload
-		$match=trim($match);
-		$match=trim(substr($match,13,strlen($match)-13-1));
-		//$opts["smileys"]=explode(" ",$match);
-		$ret = preg_match_all('/[\w\[\]\(\)\{\}\|\?\+\-\*\^\$\\\.:!\/;,+#~&%]+|"[\w\[\]\(\)\{\}\|\?\+\-\*\^\$\\\.:!\/;,+#~&%\s]+"/u',$match,$matches);
-		
-        $smileys=str_replace('"','',$matches[0]);
-		$itemPos=$this->incItemPos();
-		$page=$ID;
+        //extract payload
+        $match=trim($match);
+        $match=trim(substr($match,13,strlen($match)-13-1));
+        //$opts["smileys"]=explode(" ",$match);
+        $ret = preg_match_all('/[\w\[\]\(\)\{\}\|\?\+\-\*\^\$\\\.:!\/;,+#~&%]+|"[\w\[\]\(\)\{\}\|\?\+\-\*\^\$\\\.:!\/;,+#~&%\s]+"/u',$match,$matches);
         
-		return array(
+        $smileys=str_replace('"','',$matches[0]);
+        $itemPos=$this->incItemPos();
+        $page=$ID;
+        
+        return array(
             $smileys,
             $itemPos,
             $page
         );
-	}
+    }
 
-	function iswriter() {
-		global $conf;
-		global $INFO;
+    function iswriter() {
+        global $conf;
+        global $INFO;
 
-		return($conf['useacl'] && $INFO['perm'] > AUTH_READ);
-	}
-	/*
-	* Create output
-	*/
-	function render($mode, &$renderer, $opt) {
-		global $INFO;
+        return($conf['useacl'] && $INFO['perm'] > AUTH_READ);
+    }
+    /*
+    * Create output
+    */
+    function render($mode, &$renderer, $opt) {
+        global $INFO;
         
         list($smileys,
             $itemPos,
             $page) = $opt;
-        //dbg($opt);
-        //dbg(1);
-		if($mode == 'metadata') {
+
+        if($mode == 'metadata') {
             $renderer->smiley(reset($smileys));
         } else if ($mode == 'xhtml') {
-			//$renderer->nocache();
-			$Hajax = $this->loadHelper('ajaxedit');
+            //$renderer->nocache();
+            $Hajax = $this->loadHelper('ajaxedit');
             
             if(!reset($smileys))  {
                 $renderer->doc .= 'empty';
                 return true;
             }
-			//insert selector if writable
-			if ($Hajax && $page == $INFO['id']) {
+            //insert selector if writable
+            if ($Hajax && $page == $INFO['id']) {
                 $htmlid = hsc($page).'_'.$itemPos;
 
-				$renderer->doc .= '<span id="multiselect_'.$htmlid.'" class="multiselector" style="display:none">'.DOKU_LF;
+                $renderer->doc .= '<span id="multiselect_'.$htmlid.'" class="multiselector" style="display:none">'.DOKU_LF;
 
-				//insert all other smileys clickable
-				$count=0;        
-				foreach($smileys as $smiley) {
-					$renderer->doc .= DOKU_TAB.'<span id="multiclick_'.$htmlid."_".$count.'" class="multiclicker" onclick="multiclickclick(\''.hsc($page).'\',\''.$htmlid.'\','.$count.')">'.DOKU_LF.DOKU_TAB;
-					$renderer->smiley($smiley);
-					$renderer->doc .= DOKU_LF.DOKU_TAB.'</span>'.DOKU_LF;            
-					$count++;
-				}
-				$renderer->doc .= '</span>'.DOKU_LF;
+                //insert all other smileys clickable
+                $count=0;        
+                foreach($smileys as $smiley) {
+                    $renderer->doc .= DOKU_TAB.'<span id="multiclick_'.$htmlid."_".$count.'" class="multiclicker" onclick="multiclickclick(\''.hsc($page).'\',\''.$htmlid.'\','.$count.')">'.DOKU_LF.DOKU_TAB;
+                    $renderer->smiley($smiley);
+                    $renderer->doc .= DOKU_LF.DOKU_TAB.'</span>'.DOKU_LF;            
+                    $count++;
+                }
+                $renderer->doc .= '</span>'.DOKU_LF;
                 $renderer->doc .= '<span id="multismiley_'.$htmlid.'" title="multiselect:['.implode(', ',array_map('hsc',$smileys)).']" class="multismiley multismiley_'.hsc($page).'" onclick="multiselectclick(\''.$htmlid.'\')">'.DOKU_LF;
                     $renderer->smiley(reset($smileys));
                 $renderer->doc .= DOKU_LF.'</span>';
@@ -135,12 +134,12 @@ class syntax_plugin_multiselect extends DokuWiki_Syntax_Plugin {
                     $renderer->smiley(reset($smileys));
                 $renderer->doc .= DOKU_LF.'</span>';
             }
-			
-		} else if ($mode == 'odt'){
-			$renderer->smiley(reset($smileys));
-		}
-		return true;
-	}
+            
+        } else if ($mode == 'odt'){
+            $renderer->smiley(reset($smileys));
+        }
+        return true;
+    }
 
 }
 
