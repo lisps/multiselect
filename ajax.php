@@ -84,8 +84,5 @@ foreach($ranges as $range_index=>&$range_part){
 $data = implode($ranges);
 //Save data and create log
 $summary = "Multiselect ".$selectcount." changed from \"".hsc($temp)."\" to \"".hsc($token)."\"";
-$Hajax->saveWikiPage($data,$summary,false);
-
 $param['msg'] = sprintf($Hajax->getLang('changed_from_to'),'Multiselect',hsc($temp),hsc($token));
-
 $Hajax->saveWikiPage($data,$summary,false,$param);
