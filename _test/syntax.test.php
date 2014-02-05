@@ -39,7 +39,7 @@ class plugin_multiselect_syntax_test extends DokuWikiTest {
         saveWikiText('test:plugin_multiselect:syntax2','<multiselect "a a" "üöäß" ä_ :-)>','test');
         
         $xhtml = p_wiki_xhtml('test:plugin_multiselect:syntax2');
-        echo $xhtml;
+        //echo $xhtml;
         $doc = phpQuery::newDocument($xhtml);
         
         $mselector = pq("span.multiselector",$doc);
