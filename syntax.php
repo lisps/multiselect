@@ -65,7 +65,7 @@ class syntax_plugin_multiselect extends DokuWiki_Syntax_Plugin {
     /*
     * Handle the matches
     */
-    function handle($match, $state, $pos, Doku_Handler &$handler) {
+    function handle($match, $state, $pos, Doku_Handler $handler) {
         global $ID;
 
         //extract payload
@@ -94,7 +94,7 @@ class syntax_plugin_multiselect extends DokuWiki_Syntax_Plugin {
     /*
     * Create output
     */
-    function render($mode, Doku_Renderer &$renderer, $opt) {
+    function render($mode, Doku_Renderer $renderer, $opt) {
         global $INFO;
         
         list($smileys,
