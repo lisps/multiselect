@@ -5,16 +5,16 @@
  * @author  lisps
  */
 function multiselectdone(data) {
-	ret = ajaxedit_parse(data);
+	var ret = ajaxedit_parse(data);
 	ajaxedit_checkResponse(ret);
 }
 
     
 function multiselectclick(id) {
     if(!(JSINFO && JSINFO['acl_write'] === '1')) return;
-    id = multiselect_escapeStr(id);
+    var id = multiselect_escapeStr(id);
 
-	$myself = jQuery('#multiselect_'+id);        
+	var $myself = jQuery('#multiselect_'+id);        
 	if ($myself) {
 		$myself.toggle();
 		$myself.offset({top:jQuery('#multismiley_'+id).offset().top-7,left:jQuery('#multismiley_'+id).offset().left-7}); 
@@ -26,7 +26,7 @@ function multiclickclick(pageid,id,count) {
 	//hide selector window
     multiselectclick(id);
 
-    id = multiselect_escapeStr(id);
+    var id = multiselect_escapeStr(id);
 
 	//change smiley
 	var mysmiley=jQuery('#multismiley_'+id)[0];
@@ -36,14 +36,23 @@ function multiclickclick(pageid,id,count) {
 		//send only changes
 		if (mysmiley.innerHTML != myselect.innerHTML) {
 			mysmiley.innerHTML=myselect.innerHTML;
+			var token;
 			if (myselect.firstChild.alt) {
 				token=myselect.firstChild.alt;
 			} else {
 				token=myselect.innerHTML;
 			}
-			ajaxedit_send(
+			
+			var idx = null;
+			if(jQuery("#multiselect_"+id).parents('div.sortable').length != 0) { //sortable fix
+				idx = jQuery("#multiselect_"+id).data("plugin-multiselect-idx");
+			} else {
+				//because multiselect can be moved it is necessary to idx it on the fly;
+				idx= ajaxedit_getIdxByIdClass('multismiley_'+id,"multismiley_"+multiselect_escapeStr(pageid));
+			}
+			ajaxedit_send2(
 				'multiselect',
-				ajaxedit_getIdxByIdClass('multismiley_'+id,"multismiley_"+multiselect_escapeStr(pageid)),//because multiselect can be moved it is necessary to idx it on the fly 
+				idx,
 				multiselectdone,
 				{	
                     pageid:pageid,
@@ -63,10 +72,10 @@ function multiclickclick(pageid,id,count) {
 
 //close multiselector onclick expect multismiley itselfs
 jQuery(document).ready(function(){
-	jQuery(document).click(function(e) {
+	jQuery(document).on('click',function(e) {
 		jQuery('.multiselector').hide();
 	});
-	jQuery('.multismiley').click(function(e) {
+	jQuery(document).on('click','.multismiley',function(e) {
 		e.stopPropagation();
 		return false;
 	});

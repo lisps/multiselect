@@ -1,7 +1,7 @@
 base    multiselect
-author  lisps
-email   
-date    2013-10-25
+author  lisps, peterfromearth
+email   coder@peterfromearth.de
+date    2018-10-05
 name    MultiSelect
 desc    Creates a Multiselectbutton for different Images/Text
-url     http://dokuwiki.org/plugin:multiselect
+url     https://dokuwiki.org/plugin:multiselect

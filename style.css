@@ -32,4 +32,5 @@ span.multismiley{
 
 span.multismiley img{
   min-width        :16px; /*fix problem with chrome browser*/
+  min-height       :16px; /*fix problem with chrome browser*/
 }
