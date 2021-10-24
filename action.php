@@ -6,7 +6,6 @@
  * @author  lisps
  * @author peterfromearth
  */
-if (!defined('DOKU_INC')) die();
 class action_plugin_multiselect extends DokuWiki_Action_Plugin {
 
     /**
